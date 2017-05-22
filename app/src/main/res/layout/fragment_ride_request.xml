@@ -1,0 +1,22 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context="com.example.mehadihossain.z_ridedemo.fragment.RideRequestFragment">
+
+
+    <Button
+        android:id="@+id/pickButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/pick" />
+
+    <Button
+        android:id="@+id/dropButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/drop"/>
+
+</LinearLayout>
