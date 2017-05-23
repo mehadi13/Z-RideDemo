@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
     private boolean isSignIn = false;
     private Menu menu;
     private View headerFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
