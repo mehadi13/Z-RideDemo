@@ -1,4 +1,4 @@
-package com.example.mehadihossain.z_ridedemo.fragment;
+package com.example.mehadihossain.z_ridedemo.fragment.body;
 
 
 import android.app.Fragment;
@@ -15,43 +15,40 @@ import com.example.mehadihossain.z_ridedemo.R;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class RideRequestFragment extends Fragment implements View.OnClickListener{
+public class BasketFragment extends Fragment implements View.OnClickListener{
+
+    private Button paymentButton;
+    private OnBasketFragmentListener mListener;
+
+    public BasketFragment() {
+        // Required empty public constructor
+    }
 
 
-    private Button pickButton;
-    private Button dropButton;
-    private OnRideRequestFragmentListener mListener;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_ride_request, container, false);
+        return inflater.inflate(R.layout.fragment_basket, container, false);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        pickButton = (Button) getActivity().findViewById(R.id.pickButton);
-        dropButton = (Button) getActivity().findViewById(R.id.dropButton);
-        pickButton.setOnClickListener(this);
-        dropButton.setOnClickListener(this);
+        paymentButton = (Button) getActivity().findViewById(R.id.paymentButton);
+        paymentButton.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
-        if(v.getId()==R.id.pickButton){
-            mListener.OnRideRequestFragmentInteraction(getResources().getString(R.string.pick));
-        }else if(v.getId()==R.id.dropButton){
-            mListener.OnRideRequestFragmentInteraction(getResources().getString(R.string.drop));
-        }
-
+        mListener.OnBasketFragmentInteraction();
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnRideRequestFragmentListener) {
-            mListener = (OnRideRequestFragmentListener) context;
+        if (context instanceof OnBasketFragmentListener) {
+            mListener = (OnBasketFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -64,8 +61,8 @@ public class RideRequestFragment extends Fragment implements View.OnClickListene
         mListener = null;
     }
 
-    public interface OnRideRequestFragmentListener {
+    public interface OnBasketFragmentListener {
         // TODO: Update argument type and name
-        void OnRideRequestFragmentInteraction(String title);
+        void OnBasketFragmentInteraction();
     }
 }

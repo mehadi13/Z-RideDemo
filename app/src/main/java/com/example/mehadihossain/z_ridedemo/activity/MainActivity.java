@@ -1,4 +1,4 @@
-package com.example.mehadihossain.z_ridedemo;
+package com.example.mehadihossain.z_ridedemo.activity;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -12,19 +12,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.mehadihossain.z_ridedemo.fragment.BasketFragment;
-import com.example.mehadihossain.z_ridedemo.fragment.InformationFragment;
-import com.example.mehadihossain.z_ridedemo.fragment.ViewDetailsFragment;
+import com.example.mehadihossain.z_ridedemo.R;
+import com.example.mehadihossain.z_ridedemo.fragment.body.BasketFragment;
+import com.example.mehadihossain.z_ridedemo.fragment.body.InformationFragment;
+import com.example.mehadihossain.z_ridedemo.fragment.body.ViewDetailsFragment;
 import com.example.mehadihossain.z_ridedemo.fragment.HeaderFragment;
 import com.example.mehadihossain.z_ridedemo.fragment.MenuFragment;
-import com.example.mehadihossain.z_ridedemo.fragment.OperationsFragment;
-import com.example.mehadihossain.z_ridedemo.fragment.PaymentModuleFragment;
-import com.example.mehadihossain.z_ridedemo.fragment.PickAndDropFragment;
-import com.example.mehadihossain.z_ridedemo.fragment.PlaceListFragment;
-import com.example.mehadihossain.z_ridedemo.fragment.RideRequestFragment;
-import com.example.mehadihossain.z_ridedemo.fragment.ServiceSelectionFragment;
-import com.example.mehadihossain.z_ridedemo.fragment.user.LogInFragment;
-import com.example.mehadihossain.z_ridedemo.util.CalculateWorkingDay;
+import com.example.mehadihossain.z_ridedemo.fragment.body.OperationsFragment;
+import com.example.mehadihossain.z_ridedemo.fragment.body.PaymentModuleFragment;
+import com.example.mehadihossain.z_ridedemo.fragment.body.PickAndDropFragment;
+import com.example.mehadihossain.z_ridedemo.fragment.body.PlaceListFragment;
+import com.example.mehadihossain.z_ridedemo.fragment.body.RideRequestFragment;
+import com.example.mehadihossain.z_ridedemo.fragment.body.ServiceSelectionFragment;
+import com.example.mehadihossain.z_ridedemo.fragment.body.useraccount.LogInFragment;
 
 public class MainActivity extends AppCompatActivity implements BasketFragment.OnBasketFragmentListener,
         ServiceSelectionFragment.OnServiceSelectionFragmentListener,PickAndDropFragment.OnPickAndDropFragmentListener,
@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
         activeFragment = new PlaceListFragment();
         fragmentManager = getFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.body_container,activeFragment);
+        fragmentTransaction.add(R.id.body_container,activeFragment,"placelist");
+        fragmentTransaction.addToBackStack("placelist");
         fragmentTransaction.commit();
     }
 
@@ -61,27 +62,27 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
 
     @Override
     public void onPlaceListFragmentInteraction() {
-      removeAndAddFragment(activeFragment,new ServiceSelectionFragment());
+      removeAndAddFragment(activeFragment,new ServiceSelectionFragment(),"service");
     }
 
     @Override
     public void onPickAndDropFragmentInteraction() {
-      removeAndAddFragment(activeFragment,new BasketFragment());
+      removeAndAddFragment(activeFragment,new BasketFragment(),"basket");
     }
 
     @Override
     public void OnServiceSelectionFragmentInteraction() {
-        removeAndAddFragment(activeFragment,new OperationsFragment());
+        removeAndAddFragment(activeFragment,new OperationsFragment(),"operation");
     }
 
     @Override
     public void OnBasketFragmentInteraction() {
-       removeAndAddFragment(activeFragment,new PaymentModuleFragment());
+       removeAndAddFragment(activeFragment,new PaymentModuleFragment(),"payment");
     }
 
     @Override
     public void onHeaderFragmentInteractionHome() {
-        removeAndAddFragment(activeFragment,new PlaceListFragment());
+        removeAndAddFragment(activeFragment,new PlaceListFragment(),"placelist");
         setMenuItemVisibility(0,true);
         setMenuItemVisibility(1,true);
         setMenuItemVisibility(2,false);
@@ -89,15 +90,38 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
 
     @Override
     public void onHeaderFragmentInteractionBack() {
+        backPressed();
+    }
 
+    private void backPressed(){
+        int index = fragmentManager.getBackStackEntryCount();
+        if(index>1) {
+            fragmentManager.popBackStack();
+            index = index - 2;
+            FragmentManager.BackStackEntry backEntry = fragmentManager.getBackStackEntryAt(index);
+            String tag = backEntry.getName();
+            Toast.makeText(this, Integer.toString(index) + "\n" + tag, Toast.LENGTH_SHORT).show();
+            if (tag.equals("placelist")) {
+                headerFragment.setVisibility(View.GONE);
+            } else if (headerFragment.getVisibility() == View.GONE) {
+                headerFragment.setVisibility(View.VISIBLE);
+            }
+        }else{
+            finish();
+        }
+    }
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();
+        backPressed();
     }
 
     @Override
     public void OnOperationFragmentInteraction(String title) {
         if(title.equals("new")) {
-            removeAndAddFragment(activeFragment,new RideRequestFragment());
+            removeAndAddFragment(activeFragment,new RideRequestFragment(),"request");
         }else {
-            removeAndAddFragment(activeFragment, new ViewDetailsFragment());
+            removeAndAddFragment(activeFragment, new ViewDetailsFragment(),"viewdetails");
         }
     }
 
@@ -105,12 +129,12 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
     public void OnRideRequestFragmentInteraction(String title) {
             PickAndDropFragment pickAndDropFragment = new PickAndDropFragment();
             pickAndDropFragment.setTitle(title);
-            removeAndAddFragment(activeFragment, pickAndDropFragment);
+            removeAndAddFragment(activeFragment, pickAndDropFragment,"pickdrop");
     }
 
     @Override
     public void onViewDetailsFragmentInteraction() {
-        removeAndAddFragment(activeFragment, new InformationFragment());
+        removeAndAddFragment(activeFragment, new InformationFragment(),"info");
     }
 
     @Override
@@ -123,13 +147,17 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
 
     }
 
-    private void removeAndAddFragment(Fragment toRemove,Fragment toAdd){
+    private void removeAndAddFragment(Fragment toRemove,Fragment toAdd,String tag){
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.remove(toRemove);
-        fragmentTransaction.add(R.id.body_container,toAdd);
+        //fragmentTransaction.remove(toRemove);
+        fragmentTransaction.replace(R.id.body_container,toAdd,tag);
+        fragmentTransaction.addToBackStack(tag);
         fragmentTransaction.commit();
         activeFragment = toAdd;
+        setHeaderFragVisibility();
+    }
 
+    private void setHeaderFragVisibility(){
         if(activeFragment instanceof PlaceListFragment){
             headerFragment.setVisibility(View.GONE);
         }else if(headerFragment.getVisibility()==View.GONE){
@@ -163,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
             case R.id.siginin:
                 Toast.makeText(this, "Sign in selected", Toast.LENGTH_SHORT)
                         .show();
-                removeAndAddFragment(activeFragment,new LogInFragment());
+                removeAndAddFragment(activeFragment,new LogInFragment(),"login");
                 setMenuItemVisibility(0,false);
                 setMenuItemVisibility(1,false);
                 break;

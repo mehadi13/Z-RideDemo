@@ -1,4 +1,4 @@
-package com.example.mehadihossain.z_ridedemo.fragment;
+package com.example.mehadihossain.z_ridedemo.fragment.body;
 
 import android.app.Fragment;
 import android.content.Context;

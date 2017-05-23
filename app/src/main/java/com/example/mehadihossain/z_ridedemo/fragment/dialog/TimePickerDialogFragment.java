@@ -1,21 +1,16 @@
-package com.example.mehadihossain.z_ridedemo.util;
+package com.example.mehadihossain.z_ridedemo.fragment.dialog;
 
 import android.app.DialogFragment;
-import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.NumberPicker;
 import android.widget.TimePicker;
 
 import com.example.mehadihossain.z_ridedemo.R;
-import com.example.mehadihossain.z_ridedemo.fragment.PickAndDropFragment;
+import com.example.mehadihossain.z_ridedemo.fragment.body.PickAndDropFragment;
 
 public class TimePickerDialogFragment extends DialogFragment implements View.OnClickListener{
 

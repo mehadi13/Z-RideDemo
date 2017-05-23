@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    tools:context="com.example.mehadihossain.z_ridedemo.fragment.RideRequestFragment">
+    tools:context="com.example.mehadihossain.z_ridedemo.fragment.body.RideRequestFragment">
 
 
     <Button

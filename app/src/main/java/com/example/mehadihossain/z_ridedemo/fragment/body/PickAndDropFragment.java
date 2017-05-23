@@ -1,4 +1,4 @@
-package com.example.mehadihossain.z_ridedemo.fragment;
+package com.example.mehadihossain.z_ridedemo.fragment.body;
 
 
 import android.app.Fragment;
@@ -14,16 +14,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.mehadihossain.z_ridedemo.R;
 import com.example.mehadihossain.z_ridedemo.util.CalculateWorkingDay;
-import com.example.mehadihossain.z_ridedemo.util.GridDialogFragment;
-import com.example.mehadihossain.z_ridedemo.util.TimePickerDialogFragment;
+import com.example.mehadihossain.z_ridedemo.experimental.GridDialogFragment;
+import com.example.mehadihossain.z_ridedemo.fragment.dialog.TimePickerDialogFragment;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * A simple {@link Fragment} subclass.

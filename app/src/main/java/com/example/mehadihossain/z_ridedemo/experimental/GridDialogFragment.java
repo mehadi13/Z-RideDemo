@@ -1,22 +1,18 @@
-package com.example.mehadihossain.z_ridedemo.util;
+package com.example.mehadihossain.z_ridedemo.experimental;
 
 import android.app.DialogFragment;
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.TextView;
 
 import com.example.mehadihossain.z_ridedemo.R;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by Mehadi Hossain on 5/21/2017.
