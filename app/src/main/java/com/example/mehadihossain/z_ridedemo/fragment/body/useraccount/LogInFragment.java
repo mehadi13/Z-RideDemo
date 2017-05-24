@@ -2,16 +2,19 @@ package com.example.mehadihossain.z_ridedemo.fragment.body.useraccount;
 
 import android.app.Fragment;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.mehadihossain.z_ridedemo.R;
 
-public class LogInFragment extends Fragment {
+public class LogInFragment extends Fragment implements View.OnClickListener {
     private OnLogInFragmentInteractionListener mListener;
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -35,6 +38,8 @@ public class LogInFragment extends Fragment {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private Button signInButton;
+    SharedPreferences.Editor spEditor;
 
 
     public LogInFragment() {
@@ -47,33 +52,29 @@ public class LogInFragment extends Fragment {
         // Inflate the layout for this fragment
 
         View view = inflater.inflate(R.layout.fragment_log_in, container, false);
-        // Set up the login form.
-       /* mEmailView = (AutoCompleteTextView) view.findViewById(R.id.email);
-        populateAutoComplete();
-
+        signInButton = (Button) view.findViewById(R.id.sign_in_button);
         mPasswordView = (EditText) view.findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                   // attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        Button mEmailSignInButton = (Button) view.findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //attemptLogin();
-            }
-        });
-
-        mLoginFormView = view.findViewById(R.id.login_form);
-        mProgressView = view.findViewById(R.id.login_progress);*/
         return  view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        signInButton.setOnClickListener(this);
+        SharedPreferences sharedPreference = getActivity().getSharedPreferences("z-ride-signinfo",Context.MODE_PRIVATE);
+        spEditor = sharedPreference.edit();
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v.getId()==R.id.sign_in_button){
+            if((mPasswordView.getText().toString()).equals("12345"))
+            spEditor.putString("sign_info","yes");
+            spEditor.commit();
+            mListener.onLogInFragmentInteraction(true);
+        }else {
+            mListener.onLogInFragmentInteraction(false);
+        }
     }
 
     @Override
@@ -92,8 +93,9 @@ public class LogInFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
     public interface OnLogInFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onLogInFragmentInteraction();
+        void onLogInFragmentInteraction(boolean successful);
     }
 }

@@ -3,6 +3,8 @@ package com.example.mehadihossain.z_ridedemo.activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -33,21 +35,44 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
         OperationsFragment.OnOperationFragmentListener,RideRequestFragment.OnRideRequestFragmentListener,
         InformationFragment.OnInformationFragmentInteractionListener,
         LogInFragment.OnLogInFragmentInteractionListener{
+    /*
+    Main activity has 3 section.
+    1. Header ->  It contains two button, (a)Home & (b)Back. This sections visibility depends on the active fragment of Body section.
+                  It invisible for place list & visible for other fragment
+    2. Menu -> Contains logo
+    3. Body -> fragment transaction take place here
+     */
 
+    //heading componant
+    private Menu menu;
+    private View headerFragment;
+
+    // variable for fragment tracaction
     private FragmentManager fragmentManager;
     private FragmentTransaction fragmentTransaction;
     private Fragment activeFragment;
+
+    //to check user state
+    private SharedPreferences sharedPreferences;
     private boolean isSignIn = false;
-    private Menu menu;
-    private View headerFragment;
+    private String SIGNIN_DEFAULT = "N/A";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //check if a user signed in or not
+        sharedPreferences = getSharedPreferences("z-ride-signinfo", Context.MODE_PRIVATE);
+        String sign_in = sharedPreferences.getString("sign_info",SIGNIN_DEFAULT);
+        if(!sign_in.equals(SIGNIN_DEFAULT)){
+            isSignIn = true;
+        }
+
+        //create a view obj of header section
         headerFragment = findViewById(R.id.header_fragment);
 
+        //at init state show place list
         activeFragment = new PlaceListFragment();
         fragmentManager = getFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
@@ -63,30 +88,31 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
 
     @Override
     public void onPlaceListFragmentInteraction() {
-      removeAndAddFragment(activeFragment,new ServiceSelectionFragment(),"service");
+      removeAndAddFragment(new ServiceSelectionFragment(),"service");
     }
 
     @Override
     public void onPickAndDropFragmentInteraction() {
-      removeAndAddFragment(activeFragment,new BasketFragment(),"basket");
+      removeAndAddFragment(new PaymentModuleFragment(),"payment");
     }
 
     @Override
     public void OnServiceSelectionFragmentInteraction() {
-        removeAndAddFragment(activeFragment,new OperationsFragment(),"operation");
+        if(isSignIn) {
+            removeAndAddFragment(new OperationsFragment(), "operation");
+        }else{
+            Toast.makeText(this,"Please sign in",Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public void OnBasketFragmentInteraction() {
-       removeAndAddFragment(activeFragment,new PaymentModuleFragment(),"payment");
+       //removeAndAddFragment(activeFragment,new PaymentModuleFragment(),"payment");
     }
 
     @Override
     public void onHeaderFragmentInteractionHome() {
-        removeAndAddFragment(activeFragment,new PlaceListFragment(),"placelist");
-        setMenuItemVisibility(0,true);
-        setMenuItemVisibility(1,true);
-        setMenuItemVisibility(2,false);
+        removeAndAddFragment(new PlaceListFragment(),"placelist");
     }
 
     @Override
@@ -107,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
             } else if (headerFragment.getVisibility() == View.GONE) {
                 headerFragment.setVisibility(View.VISIBLE);
             }
+            signInfoCheck();
         }else{
             finish();
         }
@@ -120,9 +147,9 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
     @Override
     public void OnOperationFragmentInteraction(String title) {
         if(title.equals("new")) {
-            removeAndAddFragment(activeFragment,new RideRequestFragment(),"request");
+            removeAndAddFragment(new RideRequestFragment(),"request");
         }else {
-            removeAndAddFragment(activeFragment, new ViewDetailsFragment(),"viewdetails");
+            removeAndAddFragment(new ViewDetailsFragment(),"viewdetails");
         }
     }
 
@@ -130,12 +157,12 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
     public void OnRideRequestFragmentInteraction(String title) {
             PickAndDropFragment pickAndDropFragment = new PickAndDropFragment();
             pickAndDropFragment.setTitle(title);
-            removeAndAddFragment(activeFragment, pickAndDropFragment,"pickdrop");
+            removeAndAddFragment(pickAndDropFragment,"pickdrop");
     }
 
     @Override
     public void onViewDetailsFragmentInteraction() {
-        removeAndAddFragment(activeFragment, new InformationFragment(),"info");
+        removeAndAddFragment(new InformationFragment(),"info");
     }
 
     @Override
@@ -144,43 +171,65 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
     }
 
     @Override
-    public void onLogInFragmentInteraction() {
-
+    public void onLogInFragmentInteraction(boolean successful) {
+        if(successful){
+            backPressed();
+            isSignIn = true;
+            signInfoCheck();
+        }else {
+            signInfoCheck();
+        }
     }
 
-    private void removeAndAddFragment(Fragment toRemove,Fragment toAdd,String tag){
+    //fragment transaction
+    private void removeAndAddFragment(Fragment toAdd,String tag){
         fragmentTransaction = fragmentManager.beginTransaction();
-        //fragmentTransaction.remove(toRemove);
         fragmentTransaction.replace(R.id.body_container,toAdd,tag);
         fragmentTransaction.addToBackStack(tag);
         fragmentTransaction.commit();
         activeFragment = toAdd;
-        setHeaderFragVisibility();
+        setHeaderVisibility();
     }
 
-    private void setHeaderFragVisibility(){
+    private void setHeaderVisibility(){
+        //setup header fragment visibility
         if(activeFragment instanceof PlaceListFragment){
             headerFragment.setVisibility(View.GONE);
         }else if(headerFragment.getVisibility()==View.GONE){
             headerFragment.setVisibility(View.VISIBLE);
         }
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if(!isSignIn) {
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.usermenu, menu);
-            this.menu = menu;
-            setMenuItemVisibility(2,false);
-            return true;
-        }else {
+        //setup menu option visibility
+        if(activeFragment instanceof LogInFragment){
             setMenuItemVisibility(0,false);
             setMenuItemVisibility(1,false);
-            return false;
+            setMenuItemVisibility(2,false);
+        }else{
+            signInfoCheck();
         }
     }
 
+    // Menu functionality
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.usermenu, menu);
+        this.menu = menu;
+        signInfoCheck();
+        return true;
+    }
+
+    private void signInfoCheck(){
+        if(!isSignIn) {
+            setMenuItemVisibility(0,true);
+            setMenuItemVisibility(1,true);
+            setMenuItemVisibility(2,false);
+        }else {
+            setMenuItemVisibility(0,false);
+            setMenuItemVisibility(1,false);
+            setMenuItemVisibility(2,true);
+        }
+    }
     void setMenuItemVisibility(int index,boolean visible){
         menu.getItem(index).setVisible(visible);
     }
@@ -188,18 +237,27 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            // action with ID action_refresh was selected
+            // action with ID sign in was selected
             case R.id.siginin:
                 Toast.makeText(this, "Sign in selected", Toast.LENGTH_SHORT)
                         .show();
-                removeAndAddFragment(activeFragment,new LogInFragment(),"login");
-                setMenuItemVisibility(0,false);
-                setMenuItemVisibility(1,false);
+                removeAndAddFragment(new LogInFragment(),"login");
                 break;
-            // action with ID action_settings was selected
+            // action with ID sign up was selected
             case R.id.signup:
                 Toast.makeText(this, "Sign up selected", Toast.LENGTH_SHORT)
                         .show();
+                break;
+            // action with ID sign out was selected
+            case R.id.signout:
+                Toast.makeText(this, "Sign out selected", Toast.LENGTH_SHORT)
+                        .show();
+                removeAndAddFragment(new PlaceListFragment(),"placelist");
+                SharedPreferences.Editor spEditor = sharedPreferences.edit();
+                spEditor.putString("sign_info",SIGNIN_DEFAULT);
+                spEditor.commit();
+                isSignIn=false;
+                signInfoCheck();
                 break;
             default:
                 break;

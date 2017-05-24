@@ -37,34 +37,34 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:visibility="visible">
+            android:visibility="visible"
+            style="@style/table_row_margin">
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:paddingLeft="8dp"
                 android:text="MONTH"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingLeft="8dp"
-                android:text="DAY"/>
-        </TableRow>
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:visibility="visible">
-
-
             <Spinner
                 android:id="@+id/monthSpinner"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:entries="@array/months"/>
+        </TableRow>
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            style="@style/table_row_margin">
 
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingLeft="8dp"
+                android:text="DAY"/>
             <Spinner
                 android:id="@+id/daySpinner"
                 android:layout_width="0dp"
@@ -76,72 +76,82 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:visibility="visible">
+            android:visibility="visible"
+            style="@style/table_row_margin">
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:paddingLeft="8dp"
                 android:text="@string/start_point" />
+
+            <Spinner
+                android:id="@+id/startPointSpinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:entries="@array/start_destination" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            style="@style/table_row_margin">
+
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:paddingLeft="8dp"
                 android:text="@string/destination" />
+
+            <Spinner
+                android:id="@+id/destinationPointSpinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:entries="@array/start_destination" />
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:visibility="visible">
-            <Spinner
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:entries="@array/start_destination"/>
-            <Spinner
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:entries="@array/start_destination"/>
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:visibility="visible">
+            android:visibility="visible"
+            style="@style/table_row_margin">
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:paddingLeft="8dp"
                 android:text="@string/start_time" />
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:paddingLeft="8dp"
-                android:text="@string/time_frame" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:visibility="visible">
             <Button
                 android:id="@+id/timePickButton"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="20dp"
                 android:layout_weight="1"
                 android:gravity="left"
                 android:textAlignment="gravity"
                 android:paddingLeft="8dp"
                 android:background="@android:color/transparent"
                 android:text="HH:MM"/>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:visibility="visible"
+            style="@style/table_row_margin">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:paddingLeft="8dp"
+                android:text="@string/time_frame" />
             <Spinner
                 android:id="@+id/timeFrameSpinner"
                 android:layout_width="0dp"
@@ -159,15 +169,16 @@
         android:orientation="horizontal">
 
         <Button
+            android:id="@+id/fairCalculationButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/fare" />
 
         <TextView
-            android:id="@+id/editText"
+            android:id="@+id/fairTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/demo"/>
+            android:text="@string/demo" />
     </LinearLayout>
 
     <Button

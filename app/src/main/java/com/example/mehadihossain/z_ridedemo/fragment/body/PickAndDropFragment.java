@@ -6,6 +6,7 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,10 @@ import com.example.mehadihossain.z_ridedemo.R;
 import com.example.mehadihossain.z_ridedemo.util.CalculateWorkingDay;
 import com.example.mehadihossain.z_ridedemo.experimental.GridDialogFragment;
 import com.example.mehadihossain.z_ridedemo.fragment.dialog.TimePickerDialogFragment;
+import com.example.mehadihossain.z_ridedemo.util.ParserTask;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -36,9 +41,13 @@ public class PickAndDropFragment extends Fragment implements View.OnClickListene
     private Spinner timeFrameSpinner;
     private Spinner monthSpinner;
     private Spinner daySpinner;
+    private Spinner startpointSpinner;
+    private Spinner destinationPointSpinner;
     private CalculateWorkingDay calculateWorkingDay;
     int month,day,timeFrame;
     private Button timePickButton;
+    private Button fairButton;
+    private TextView fairTextView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -50,6 +59,14 @@ public class PickAndDropFragment extends Fragment implements View.OnClickListene
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        //set task and url to download start point list
+        ParserTask fetchStartPoint = new ParserTask(this,R.string.pick_drop_class,R.string.start_point_list);
+        fetchStartPoint.execute("https://fir-testapplication-76706.firebaseio.com/z-rider/pick_drop.json");
+
+        //set task and url to download destination point list
+        ParserTask fetchDestination = new ParserTask(this,R.string.pick_drop_class,R.string.destination_point_list);
+        fetchDestination.execute("https://fir-testapplication-76706.firebaseio.com/z-rider/pick_drop.json");
 
         submitButton = (Button) getActivity().findViewById(R.id.submitButton);
         submitButton.setOnClickListener(this);
@@ -103,26 +120,42 @@ public class PickAndDropFragment extends Fragment implements View.OnClickListene
         timePickButton = (Button) getActivity().findViewById(R.id.timePickButton);
         timePickButton.setOnClickListener(this);
 
+        startpointSpinner = (Spinner) getActivity().findViewById(R.id.startPointSpinner);
+        startpointSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        destinationPointSpinner = (Spinner) getActivity().findViewById(R.id.destinationPointSpinner);
+        fairButton = (Button) getActivity().findViewById(R.id.fairCalculationButton);
+        fairButton.setOnClickListener(this);
+        fairTextView = (TextView) getActivity().findViewById(R.id.fairTextView);
+
     }
 
     @Override
     public void onClick(View v) {
-        if(v.getId()==R.id.submitButton) {
-            GridDialogFragment gridDialogFragment = new GridDialogFragment();
-            gridDialogFragment.setContext(getActivity());
-            gridDialogFragment.show(fragmentManager, "gdf");
-            //mListener.onPickAndDropFragmentInteraction();
-        }/*else if(v.getId()==R.id.monthButton){
-            ArrayList<String> arrayList = new ArrayList<>(Arrays.asList(getActivity().getResources().getStringArray(R.array.months)));
-            GridDialogFragment gridDialogFragment = new GridDialogFragment();
-            gridDialogFragment.setContext(getActivity());
-            gridDialogFragment.setListItmes(arrayList);
-            gridDialogFragment.show(fragmentManager,"dfasdf");
-        }*/
-        else if(v.getId()==R.id.timePickButton){
-            TimePickerDialogFragment timePickerDialogFragment = new TimePickerDialogFragment();
-            timePickerDialogFragment.setContext(this);
-            timePickerDialogFragment.show(fragmentManager,"time");
+        switch (v.getId()){
+            case R.id.submitButton:
+                mListener.onPickAndDropFragmentInteraction();
+                break;
+            case R.id.timePickButton:
+                TimePickerDialogFragment timePickerDialogFragment = new TimePickerDialogFragment();
+                timePickerDialogFragment.setContext(this);
+                timePickerDialogFragment.show(fragmentManager,"time");
+                break;
+            case R.id.fairCalculationButton:
+                //set task and url to download calculated fair
+                ParserTask calculateFair = new ParserTask(this,R.string.pick_drop_class,R.string.fair_calculation);
+                calculateFair.execute("https://fir-testapplication-76706.firebaseio.com/z-rider/pick_drop/fair.json");
+                break;
         }
     }
 
@@ -173,6 +206,32 @@ public class PickAndDropFragment extends Fragment implements View.OnClickListene
     @Override
     public void onFragmentInteraction(String hh, String mm) {
         timePickButton.setText(hh+":"+mm);
+    }
+
+    public void setData(int taskId,String data) throws JSONException {
+        switch (taskId){
+            case R.string.start_point_list:
+                Toast.makeText(getActivity(),data,Toast.LENGTH_SHORT).show();
+                JSONObject reader = new JSONObject(data);
+                String placelist[] = reader.getString("place_list").split(",");
+                //String placelist[] = data.split(",");
+                ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item,placelist);
+                spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                startpointSpinner.setAdapter(spinnerArrayAdapter);
+                break;
+            case R.string.destination_point_list:
+                Toast.makeText(getActivity(),data,Toast.LENGTH_SHORT).show();
+                JSONObject reader1 = new JSONObject(data);
+                String placelist1[] = reader1.getString("place_list").split(",");
+                //String placelist[] = data.split(",");
+                ArrayAdapter<String> spinnerArrayAdapter1 = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item,placelist1);
+                spinnerArrayAdapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                destinationPointSpinner.setAdapter(spinnerArrayAdapter1);
+                break;
+            case R.string.fair_calculation:
+                fairTextView.setText(data);
+                break;
+        }
     }
 
     public interface OnPickAndDropFragmentListener {

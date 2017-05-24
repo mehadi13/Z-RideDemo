@@ -51,6 +51,14 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
+
+
+    <!-- strings related to parse task -->
+    <string name="pick_drop_class">pick_drop_class</string>
+    <string name="start_point_list">Start Point</string>
+    <string name="destination_point_list">Destination Point</string>
+    <string name="fair_calculation">Calculated Fair</string>
+
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
