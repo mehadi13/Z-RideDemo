@@ -31,7 +31,7 @@ import java.util.ArrayList;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class PickAndDropFragment extends Fragment implements View.OnClickListener,AdapterView.OnItemSelectedListener,TimePickerDialogFragment.OnTimePickerFragmentInteractionListener {
+public class PickAndDropFragment extends Fragment implements View.OnClickListener,TimePickerDialogFragment.OnTimePickerFragmentInteractionListener {
 
     String title;
     Button submitButton;
@@ -44,10 +44,11 @@ public class PickAndDropFragment extends Fragment implements View.OnClickListene
     private Spinner startpointSpinner;
     private Spinner destinationPointSpinner;
     private CalculateWorkingDay calculateWorkingDay;
-    int month,day,timeFrame;
+    String month,day,timeFrame;
     private Button timePickButton;
     private Button fairButton;
     private TextView fairTextView;
+    String startTime,startPoint,destinationPoint;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -60,6 +61,10 @@ public class PickAndDropFragment extends Fragment implements View.OnClickListene
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        //set title of fragment
+        titleTextView = (TextView) getActivity().findViewById(R.id.titleTextView);
+        titleTextView.setText(title);
+
         //set task and url to download start point list
         ParserTask fetchStartPoint = new ParserTask(this,R.string.pick_drop_class,R.string.start_point_list);
         fetchStartPoint.execute("https://fir-testapplication-76706.firebaseio.com/z-rider/pick_drop.json");
@@ -68,17 +73,12 @@ public class PickAndDropFragment extends Fragment implements View.OnClickListene
         ParserTask fetchDestination = new ParserTask(this,R.string.pick_drop_class,R.string.destination_point_list);
         fetchDestination.execute("https://fir-testapplication-76706.firebaseio.com/z-rider/pick_drop.json");
 
-        submitButton = (Button) getActivity().findViewById(R.id.submitButton);
-        submitButton.setOnClickListener(this);
-
-        titleTextView = (TextView) getActivity().findViewById(R.id.titleTextView);
-        titleTextView.setText(title);
-
+        // 1
         monthSpinner = (Spinner) getActivity().findViewById(R.id.monthSpinner);
         monthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                month = position;
+                month = monthSpinner.getSelectedItem().toString();
                 ArrayList<String> dayList = calculateWorkingDay.getDaysOfMonth(position);
                 ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item,dayList);
                 spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -90,12 +90,13 @@ public class PickAndDropFragment extends Fragment implements View.OnClickListene
             }
         });
 
+        // 2
         daySpinner = (Spinner) getActivity().findViewById(R.id.daySpinner);
         calculateWorkingDay = new CalculateWorkingDay();
         daySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                day = Integer.parseInt((String) parent.getItemAtPosition(position));
+                day = daySpinner.getSelectedItem().toString();
             }
 
             @Override
@@ -104,27 +105,17 @@ public class PickAndDropFragment extends Fragment implements View.OnClickListene
             }
         });
 
-        timeFrameSpinner = (Spinner) getActivity().findViewById(R.id.timeFrameSpinner);
-        timeFrameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                timeFrame = position;
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
+        // 3
         timePickButton = (Button) getActivity().findViewById(R.id.timePickButton);
         timePickButton.setOnClickListener(this);
 
+        // 4
         startpointSpinner = (Spinner) getActivity().findViewById(R.id.startPointSpinner);
         startpointSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+                startPoint = startpointSpinner.getSelectedItem().toString();
             }
 
             @Override
@@ -133,11 +124,43 @@ public class PickAndDropFragment extends Fragment implements View.OnClickListene
             }
         });
 
+        // 5
         destinationPointSpinner = (Spinner) getActivity().findViewById(R.id.destinationPointSpinner);
+        destinationPointSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                destinationPoint = destinationPointSpinner.getSelectedItem().toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        // 6
+        timeFrameSpinner = (Spinner) getActivity().findViewById(R.id.timeFrameSpinner);
+        timeFrameSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                timeFrame = timeFrameSpinner.getSelectedItem().toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+
+        // 7
         fairButton = (Button) getActivity().findViewById(R.id.fairCalculationButton);
         fairButton.setOnClickListener(this);
         fairTextView = (TextView) getActivity().findViewById(R.id.fairTextView);
 
+        // 8
+        submitButton = (Button) getActivity().findViewById(R.id.submitButton);
+        submitButton.setOnClickListener(this);
     }
 
     @Override
@@ -180,7 +203,7 @@ public class PickAndDropFragment extends Fragment implements View.OnClickListene
         this.title = title;
     }
 
-
+/*
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         Toast.makeText(getActivity(),Integer.toString(view.getId()),Toast.LENGTH_SHORT).show();
@@ -201,11 +224,15 @@ public class PickAndDropFragment extends Fragment implements View.OnClickListene
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
-    }
+    }*/
+
+
 
     @Override
     public void onFragmentInteraction(String hh, String mm) {
-        timePickButton.setText(hh+":"+mm);
+        startTime = hh+":"+mm;
+        timePickButton.setText(startTime);
+
     }
 
     public void setData(int taskId,String data) throws JSONException {

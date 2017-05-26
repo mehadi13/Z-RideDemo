@@ -4,10 +4,15 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.support.v4.app.NavUtils;
+import android.support.v4.app.TaskStackBuilder;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,12 +34,12 @@ import com.example.mehadihossain.z_ridedemo.fragment.body.ServiceSelectionFragme
 import com.example.mehadihossain.z_ridedemo.fragment.body.useraccount.LogInFragment;
 
 public class MainActivity extends AppCompatActivity implements BasketFragment.OnBasketFragmentListener,
-        ServiceSelectionFragment.OnServiceSelectionFragmentListener,PickAndDropFragment.OnPickAndDropFragmentListener,
-        PlaceListFragment.OnPlaceListFragmentInteractionListener,ViewDetailsFragment.OnViewDetailsFragmentListener,
-        MenuFragment.OnFragmentInteractionListener,HeaderFragment.OnHeaderFragmentListener,
-        OperationsFragment.OnOperationFragmentListener,RideRequestFragment.OnRideRequestFragmentListener,
+        ServiceSelectionFragment.OnServiceSelectionFragmentListener, PickAndDropFragment.OnPickAndDropFragmentListener,
+        PlaceListFragment.OnPlaceListFragmentInteractionListener, ViewDetailsFragment.OnViewDetailsFragmentListener,
+        MenuFragment.OnFragmentInteractionListener, HeaderFragment.OnHeaderFragmentListener,
+        OperationsFragment.OnOperationFragmentListener, RideRequestFragment.OnRideRequestFragmentListener,
         InformationFragment.OnInformationFragmentInteractionListener,
-        LogInFragment.OnLogInFragmentInteractionListener{
+        LogInFragment.OnLogInFragmentInteractionListener {
     /*
     Main activity has 3 section.
     1. Header ->  It contains two button, (a)Home & (b)Back. This sections visibility depends on the active fragment of Body section.
@@ -45,7 +50,10 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
 
     //heading componant
     private Menu menu;
-    private View headerFragment;
+    private Toolbar toolbar;
+    private boolean isNotHome = false;
+
+    // private View headerFragment;
 
     // variable for fragment tracaction
     private FragmentManager fragmentManager;
@@ -64,19 +72,23 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
 
         //check if a user signed in or not
         sharedPreferences = getSharedPreferences("z-ride-signinfo", Context.MODE_PRIVATE);
-        String sign_in = sharedPreferences.getString("sign_info",SIGNIN_DEFAULT);
-        if(!sign_in.equals(SIGNIN_DEFAULT)){
+        String sign_in = sharedPreferences.getString("sign_info", SIGNIN_DEFAULT);
+        if (!sign_in.equals(SIGNIN_DEFAULT)) {
             isSignIn = true;
         }
 
+        //setUptoolbar
+        toolbar = (Toolbar) findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
+
         //create a view obj of header section
-        headerFragment = findViewById(R.id.header_fragment);
+        //headerFragment = findViewById(R.id.header_fragment);
 
         //at init state show place list
         activeFragment = new PlaceListFragment();
         fragmentManager = getFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.body_container,activeFragment,"placelist");
+        fragmentTransaction.add(R.id.body_container, activeFragment, "placelist");
         fragmentTransaction.addToBackStack("placelist");
         fragmentTransaction.commit();
     }
@@ -88,31 +100,31 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
 
     @Override
     public void onPlaceListFragmentInteraction() {
-      removeAndAddFragment(new ServiceSelectionFragment(),"service");
+        removeAndAddFragment(new ServiceSelectionFragment(), "service");
     }
 
     @Override
     public void onPickAndDropFragmentInteraction() {
-      removeAndAddFragment(new PaymentModuleFragment(),"payment");
+        removeAndAddFragment(new PaymentModuleFragment(), "payment");
     }
 
     @Override
     public void OnServiceSelectionFragmentInteraction() {
-        if(isSignIn) {
+        if (isSignIn) {
             removeAndAddFragment(new OperationsFragment(), "operation");
-        }else{
-            Toast.makeText(this,"Please sign in",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Please sign in", Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void OnBasketFragmentInteraction() {
-       //removeAndAddFragment(activeFragment,new PaymentModuleFragment(),"payment");
+        //removeAndAddFragment(activeFragment,new PaymentModuleFragment(),"payment");
     }
 
     @Override
     public void onHeaderFragmentInteractionHome() {
-        removeAndAddFragment(new PlaceListFragment(),"placelist");
+        removeAndAddFragment(new PlaceListFragment(), "placelist");
     }
 
     @Override
@@ -120,24 +132,32 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
         backPressed();
     }
 
-    private void backPressed(){
+    private void backPressed() {
         int index = fragmentManager.getBackStackEntryCount();
-        if(index>1) {
+        if (index > 1) {
             fragmentManager.popBackStack();
             index = index - 2;
             FragmentManager.BackStackEntry backEntry = fragmentManager.getBackStackEntryAt(index);
             String tag = backEntry.getName();
             Toast.makeText(this, Integer.toString(index) + "\n" + tag, Toast.LENGTH_SHORT).show();
-            if (tag.equals("placelist")) {
+           /* if (tag.equals("placelist")) {
                 headerFragment.setVisibility(View.GONE);
             } else if (headerFragment.getVisibility() == View.GONE) {
                 headerFragment.setVisibility(View.VISIBLE);
+            }*/
+            if (tag.equals("placelist")) {
+                isNotHome = false;
+                getSupportActionBar().setDisplayHomeAsUpEnabled(isNotHome);
+            } else if(!isNotHome){
+                isNotHome = true;
+                getSupportActionBar().setDisplayHomeAsUpEnabled(isNotHome);
             }
             signInfoCheck();
-        }else{
+        } else {
             finish();
         }
     }
+
     @Override
     public void onBackPressed() {
         //super.onBackPressed();
@@ -146,23 +166,23 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
 
     @Override
     public void OnOperationFragmentInteraction(String title) {
-        if(title.equals("new")) {
-            removeAndAddFragment(new RideRequestFragment(),"request");
-        }else {
-            removeAndAddFragment(new ViewDetailsFragment(),"viewdetails");
+        if (title.equals("new")) {
+            removeAndAddFragment(new RideRequestFragment(), "request");
+        } else {
+            removeAndAddFragment(new ViewDetailsFragment(), "viewdetails");
         }
     }
 
     @Override
     public void OnRideRequestFragmentInteraction(String title) {
-            PickAndDropFragment pickAndDropFragment = new PickAndDropFragment();
-            pickAndDropFragment.setTitle(title);
-            removeAndAddFragment(pickAndDropFragment,"pickdrop");
+        PickAndDropFragment pickAndDropFragment = new PickAndDropFragment();
+        pickAndDropFragment.setTitle(title);
+        removeAndAddFragment(pickAndDropFragment, "pickdrop");
     }
 
     @Override
     public void onViewDetailsFragmentInteraction() {
-        removeAndAddFragment(new InformationFragment(),"info");
+        removeAndAddFragment(new InformationFragment(), "info");
     }
 
     @Override
@@ -172,39 +192,46 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
 
     @Override
     public void onLogInFragmentInteraction(boolean successful) {
-        if(successful){
+        if (successful) {
             backPressed();
             isSignIn = true;
             signInfoCheck();
-        }else {
+        } else {
             signInfoCheck();
         }
     }
 
     //fragment transaction
-    private void removeAndAddFragment(Fragment toAdd,String tag){
+    private void removeAndAddFragment(Fragment toAdd, String tag) {
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.body_container,toAdd,tag);
+        fragmentTransaction.replace(R.id.body_container, toAdd, tag);
         fragmentTransaction.addToBackStack(tag);
         fragmentTransaction.commit();
         activeFragment = toAdd;
         setHeaderVisibility();
     }
 
-    private void setHeaderVisibility(){
+    private void setHeaderVisibility() {
         //setup header fragment visibility
-        if(activeFragment instanceof PlaceListFragment){
+       /* if(activeFragment instanceof PlaceListFragment){
             headerFragment.setVisibility(View.GONE);
         }else if(headerFragment.getVisibility()==View.GONE){
             headerFragment.setVisibility(View.VISIBLE);
+        }*/
+        if (activeFragment instanceof PlaceListFragment) {
+            isNotHome = false;
+            getSupportActionBar().setDisplayHomeAsUpEnabled(isNotHome);
+        } else if (!isNotHome) {
+            isNotHome = true;
+            getSupportActionBar().setDisplayHomeAsUpEnabled(isNotHome);
         }
 
         //setup menu option visibility
-        if(activeFragment instanceof LogInFragment){
-            setMenuItemVisibility(0,false);
-            setMenuItemVisibility(1,false);
-            setMenuItemVisibility(2,false);
-        }else{
+        if (activeFragment instanceof LogInFragment) {
+            setMenuItemVisibility(0, false);
+            setMenuItemVisibility(1, false);
+            setMenuItemVisibility(2, false);
+        } else {
             signInfoCheck();
         }
     }
@@ -219,18 +246,19 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
         return true;
     }
 
-    private void signInfoCheck(){
-        if(!isSignIn) {
-            setMenuItemVisibility(0,true);
-            setMenuItemVisibility(1,true);
-            setMenuItemVisibility(2,false);
-        }else {
-            setMenuItemVisibility(0,false);
-            setMenuItemVisibility(1,false);
-            setMenuItemVisibility(2,true);
+    private void signInfoCheck() {
+        if (!isSignIn) {
+            setMenuItemVisibility(0, true);
+            setMenuItemVisibility(1, true);
+            setMenuItemVisibility(2, false);
+        } else {
+            setMenuItemVisibility(0, false);
+            setMenuItemVisibility(1, false);
+            setMenuItemVisibility(2, true);
         }
     }
-    void setMenuItemVisibility(int index,boolean visible){
+
+    void setMenuItemVisibility(int index, boolean visible) {
         menu.getItem(index).setVisible(visible);
     }
 
@@ -241,7 +269,7 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
             case R.id.siginin:
                 Toast.makeText(this, "Sign in selected", Toast.LENGTH_SHORT)
                         .show();
-                removeAndAddFragment(new LogInFragment(),"login");
+                removeAndAddFragment(new LogInFragment(), "login");
                 break;
             // action with ID sign up was selected
             case R.id.signup:
@@ -252,12 +280,15 @@ public class MainActivity extends AppCompatActivity implements BasketFragment.On
             case R.id.signout:
                 Toast.makeText(this, "Sign out selected", Toast.LENGTH_SHORT)
                         .show();
-                removeAndAddFragment(new PlaceListFragment(),"placelist");
+                removeAndAddFragment(new PlaceListFragment(), "placelist");
                 SharedPreferences.Editor spEditor = sharedPreferences.edit();
-                spEditor.putString("sign_info",SIGNIN_DEFAULT);
+                spEditor.putString("sign_info", SIGNIN_DEFAULT);
                 spEditor.commit();
-                isSignIn=false;
+                isSignIn = false;
                 signInfoCheck();
+                break;
+            case android.R.id.home:
+                backPressed();
                 break;
             default:
                 break;

@@ -8,6 +8,9 @@
     android:orientation="vertical"
     tools:context="com.example.mehadihossain.z_ridedemo.activity.MainActivity">
 
+    <include
+        android:id="@+id/app_bar"
+        layout="@layout/app_bar" />
 
     <fragment
         android:id="@+id/header_fragment"
